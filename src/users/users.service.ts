@@ -4,13 +4,27 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { User } from 'src/schemas/UserSchema';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UserSettings } from 'src/schemas/UserSetting';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(UserSettings.name)
+    private userSettingsModel: Model<UserSettings>,
+  ) {}
 
-  async createUser(createUserDto: CreateUserDto) {
+  async createUser({ settings, ...createUserDto }: CreateUserDto) {
     try {
+      if (settings) {
+        const newSettings = new this.userSettingsModel(settings);
+        const savedNewSettings = await newSettings.save();
+        const newUser = new this.userModel({
+          ...createUserDto,
+          settings: savedNewSettings._id,
+        });
+        return newUser;
+      }
       const newUser = await this.userModel.create(createUserDto);
       return newUser.save();
     } catch (error) {
