@@ -23,10 +23,10 @@ export class UsersService {
           ...createUserDto,
           settings: savedNewSettings._id,
         });
-        return newUser;
+        return newUser.save();
       }
       const newUser = await this.userModel.create(createUserDto);
-      return newUser.save();
+      return newUser;
     } catch (error) {
       console.log(error);
       throw new Error(error);
@@ -35,7 +35,7 @@ export class UsersService {
 
   async getUsers() {
     try {
-      return this.userModel.find();
+      return this.userModel.find().populate('settings');
     } catch (error) {
       console.log(error);
       throw new Error(error);
@@ -48,7 +48,7 @@ export class UsersService {
       if (!isValid) {
         throw new HttpException('User not found', 404);
       }
-      const user = await this.userModel.findById(id);
+      const user = await this.userModel.findById(id).populate('settings');
       if (!user) {
         throw new HttpException('User not found', 404);
       }
