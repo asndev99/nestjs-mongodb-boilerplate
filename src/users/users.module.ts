@@ -18,7 +18,6 @@ import { PostsModule } from './posts/posts.module';
         schema: UserSettingSchema,
       },
     ]),
-    PostsModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],
